@@ -1,0 +1,3 @@
+this is udacity's first project in Data science Nanodegree
+i used basic code and loops + panda to manipulate data about bikeshare in three american cities through interactive environment
+
