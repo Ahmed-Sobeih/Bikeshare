@@ -4,12 +4,9 @@ import numpy as np
 from statistics import mode
 from datetime import datetime
 
-
 CITY_DATA = {'chicago': 'chicago.csv',
              'new york city': 'new_york_city.csv',
              'washington': 'washington.csv'}
-
-
 
 
 def get_filters():
@@ -109,8 +106,12 @@ def load_data(city, month, day):
 
     df['Start Time'] = pd.to_datetime(df['Start Time'])
     df['End Time'] = pd.to_datetime(df['End Time'])
-    df['day']   = df['Start Time'].apply(lambda x:datetime.strftime(x,'%A') )
-    df['month'] = df['Start Time'].apply(lambda x:datetime.strftime(x,'%B') )
+    df['month'] = df['Start Time'].dt.month
+    df['day_of_week'] = df['Start Time'].dt.day_name
+    df['day'] = df['Start Time'].apply(lambda x: datetime.strftime(x, '%A'))
+    df['month'] = df['Start Time'].apply(lambda x: datetime.strftime(x, '%B'))
+
+    # filtring data
 
     if day != 'no' and month != 'no':
         df = df[(df['month'] == month.title()) & (df['day'] == day.title())]
@@ -190,30 +191,34 @@ def user_stats(df):
     print('\nCalculating User Stats...\n')
     start_time = time.time()
 
-    # TO DO: Display counts of user types
+    # Display counts of user types
     user_count = df['User Type'].value_counts()
 
-    # TO DO: Display counts of gender
-    if 'Gender' in df:
-       gender = df['Gender'].value_counts()
-       print(gender)
-    else:
-       print("There is no gender information in this city.")
+    if 'Gender' in df.keys() and 'Birth Year' in df.keys():
 
-    # TO DO: Display earliest, most recent, and most common year of birth
-    if 'Birth_Year' in df:
-        earliest = df['Birth_Year'].min()
-        print('oldest: ', earliest)
-        recent = df['Birth_Year'].max()
-        print('youngest: ', recent)
+        # Display counts of gender
+        gender_count = df['Gender'].value_counts()
+
+        # Display earliest, most recent, and most common year of birth
+        earliest = df['Birth Year'].min()
+        recent = df['Birth Year'].max()
         common = df['Birth Year'].mode()[0]
-        print('most common year of birth: ', common)
+
     else:
-        print("There is no birth year information in this city.")
+        gender_count = 'This Data Frame not have gender !'
+        earliest = 'not-founad'
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('counts of user types :\n', user_count)
-    print('-' * 40)
+    print('counts of gender     :\n', gender_count)
+    print('-' * 15)
+    if earliest == 'not-founad':
+        print('earliest year of birth : This Data Frame not have date of birth!')
+    else:
+        print('earliest year of birth    : ', earliest)
+        print('recent year of birth      : ', recent)
+        print('most common year of birth : ', common)
+        print('-' * 40)
 
 
 def raw_data(df):
@@ -245,6 +250,7 @@ def main():
         station_stats(df)
         trip_duration_stats(df)
         user_stats(df)
+        raw_data(df)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
