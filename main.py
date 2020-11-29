@@ -1,5 +1,5 @@
 import time
-import pandas as pd
+import panda as pd
 import numpy as np
 from statistics import mode
 from datetime import datetime
